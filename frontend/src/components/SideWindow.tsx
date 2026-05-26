@@ -1,6 +1,7 @@
 import "../style/sideSection.css";
 import { useState, useEffect } from "react";
 import type { UserSummary } from "../types/user";
+import { apiUrl } from "../config/api";
 
 interface Conversation {
   user: UserSummary;
@@ -36,7 +37,7 @@ export default function SideWindow({ activeUserId, onStartChat }: SideWindowProp
         return;
       }
 
-      const response = await fetch('http://localhost:8000/api/chats/conversations', {
+      const response = await fetch(apiUrl("/api/chats/conversations"), {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

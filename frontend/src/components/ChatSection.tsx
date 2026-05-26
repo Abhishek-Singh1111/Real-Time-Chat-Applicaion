@@ -3,6 +3,7 @@ import { useMemo, useState, useCallback } from "react";
 import SideWindo from '../components/SideWindow';
 import Nav from "./Nav";
 import type { UserSummary } from "../types/user";
+import { apiUrl } from "../config/api";
 
 type ChatMessage = {
   id: string;
@@ -61,7 +62,7 @@ export default function ChatSection() {
       const token = getToken();
       if (!token) return;
 
-      const response = await fetch(`http://localhost:8000/api/chats/history/${receiverId}`, {
+      const response = await fetch(apiUrl(`/api/chats/history/${receiverId}`), {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -126,7 +127,7 @@ export default function ChatSection() {
       const token = getToken();
       if (!token) return null;
 
-      const response = await fetch("http://localhost:8000/api/chats/send", {
+      const response = await fetch(apiUrl("/api/chats/send"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

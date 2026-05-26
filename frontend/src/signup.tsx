@@ -1,5 +1,6 @@
 import "./style/Signup.css";
 import { useState } from "react";
+import { apiUrl } from "./config/api";
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -37,7 +38,7 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/auth/signup", {
+      const response = await fetch(apiUrl("/api/auth/signup"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

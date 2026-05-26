@@ -1,6 +1,7 @@
 import "../style/Search.css";
 import { useState } from "react";
 import type { UserSummary } from "../types/user";
+import { apiUrl } from "../config/api";
 
 type SearchProps = {
   onStartChat?: (user: UserSummary) => void;
@@ -30,9 +31,11 @@ export default function Search({ onStartChat }: SearchProps) {
       
       // Choose which API endpoint to use
       if (searchType === "both") {
-        url = `http://localhost:8000/api/users/search?query=${encodeURIComponent(searchQuery)}`;
+        url = apiUrl(`/api/users/search?query=${encodeURIComponent(searchQuery)}`);
       } else {
-        url = `http://localhost:8000/api/users/advanced-search?searchTerm=${encodeURIComponent(searchQuery)}&type=${searchType}`;
+        url = apiUrl(
+          `/api/users/advanced-search?searchTerm=${encodeURIComponent(searchQuery)}&type=${searchType}`
+        );
       }
       
       const response = await fetch(url);
