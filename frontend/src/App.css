@@ -7,6 +7,7 @@
 .notlogin-container {
   display: flex;
   height: 100vh;
+  height: 100svh;
   width: 100%;
   overflow: hidden;
   background-color: #f0f2f5;
@@ -19,6 +20,7 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
+  height: 100svh;
   width: 100%;
   background: linear-gradient(135deg, #075e54 0%, #128c7e 100%);
   color: white;

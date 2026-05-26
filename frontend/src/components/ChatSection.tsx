@@ -50,6 +50,11 @@ export default function ChatSection() {
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const isMobile = () =>
+    typeof window !== "undefined" &&
+    window.matchMedia &&
+    window.matchMedia("(max-width: 640px)").matches;
+
   // Fetch chat history from backend
   const fetchChatHistory = useCallback(async (receiverId: string) => {
     try {
@@ -107,6 +112,12 @@ export default function ChatSection() {
       return { ...prev, [user._id]: [] };
     });
     void fetchChatHistory(user._id);
+  };
+
+  const handleBackToList = () => {
+    if (!isMobile()) return;
+    setActiveChatUser(null);
+    setNewMessage("");
   };
 
   // Send message to backend
@@ -192,14 +203,25 @@ export default function ChatSection() {
     <div className="chat-app">
       <Nav onStartChat={handleStartChat} />
       
-      <div className="chat-main">
-        <SideWindo />
+      <div className={`chat-main ${activeChatUser ? "mobile-chat-open" : ""}`}>
+        <SideWindo
+          activeUserId={activeChatUser?._id ?? null}
+          onStartChat={handleStartChat}
+        />
         
         {/* Chat Section on right */}
         <div className="chat-section">
           {/* Chat Header */}
           <div className="chat-header">
             <div className="chat-header-info">
+              <button
+                type="button"
+                className="chat-back"
+                onClick={handleBackToList}
+                aria-label="Back"
+              >
+                ←
+              </button>
               <div className="avatar"></div>
               <div className="contact-info">
                 <h3>{activeChatUser ? (activeChatUser.name || activeChatUser.username) : "Select a chat"}</h3>

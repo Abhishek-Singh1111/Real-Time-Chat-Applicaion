@@ -12,7 +12,8 @@ type NavProps = {
 
 export default function Nav({ onStartChat }: NavProps) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState<string | null>(null);
+  const [profileName, setProfileName] = useState<string | null>(null);
+  const [profileEmail, setProfileEmail] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,7 +21,10 @@ export default function Nav({ onStartChat }: NavProps) {
     const checkLoginStatus = () => {
       const token = localStorage.getItem('token');
       setIsLoggedIn(!!token);
-      setUserName(localStorage.getItem('userEmail'));
+      const storedName = localStorage.getItem('userName');
+      const storedEmail = localStorage.getItem('userEmail');
+      setProfileName(storedName || storedEmail);
+      setProfileEmail(storedName ? storedEmail : null);
     };
 
     checkLoginStatus();
@@ -39,6 +43,8 @@ export default function Nav({ onStartChat }: NavProps) {
     localStorage.removeItem('userName');
     localStorage.removeItem('userEmail');
     setIsLoggedIn(false);
+    setProfileName(null);
+    setProfileEmail(null);
     navigate("/", { replace: true });
   };
 
@@ -61,9 +67,16 @@ export default function Nav({ onStartChat }: NavProps) {
             <FiLogOut aria-hidden="true" focusable="false" />
             Logout
           </button>
-            <div className="profile">
-              <span className="profile-label">Profile:</span>
-              <span className="profile-name">{userName || 'Guest'}</span>
+            <div className="nav-profile" title={profileEmail || profileName || ""}>
+              <div className="nav-profile-avatar" aria-hidden="true">
+                {(profileName || "G").charAt(0).toUpperCase()}
+              </div>
+              <div className="nav-profile-meta">
+                <div className="nav-profile-name">{profileName || "Guest"}</div>
+                {profileEmail ? (
+                  <div className="nav-profile-email">{profileEmail}</div>
+                ) : null}
+              </div>
             </div>
           </>
           

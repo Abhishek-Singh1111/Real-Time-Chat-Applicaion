@@ -101,37 +101,34 @@ exports.getUserChats = async (req, res, next) => {
     try {
         const userId = req.user.userId;
 
-        // Find all chats where user is either sender or receiver
         const chats = await Chat.find({
-            $or: [
-                { sender: userId },
-                { receiver: userId }
-            ]
+            $or: [{ sender: userId }, { receiver: userId }],
         })
-        .populate("sender", "name username email")
-        .populate("receiver", "name username email")
-        .sort({ createdAt: -1 });
+            .sort({ updatedAt: -1 })
+            .populate("sender", "name username email")
+            .populate("receiver", "name username email");
 
-        // Group by conversation
-        const conversations = new Map();
-        
-        chats.forEach(chat => {
-            const otherUser = chat.sender._id.toString() === userId ? chat.receiver : chat.sender;
-            const conversationId = otherUser._id.toString();
-            
-            if (!conversations.has(conversationId)) {
-                conversations.set(conversationId, {
-                    user: otherUser,
-                    lastMessage: chat.message,
-                    lastMessageTime: chat.createdAt,
-                    unreadCount: chat.receiver._id.toString() === userId && !chat.read ? 1 : 0
-                });
-            }
-        });
+        const conversationsByUser = new Map();
+
+        for (const chat of chats) {
+            const senderId = chat.sender?._id ? String(chat.sender._id) : null;
+            const otherUser = senderId === String(userId) ? chat.receiver : chat.sender;
+
+            if (!otherUser?._id) continue;
+
+            const key = String(otherUser._id);
+            if (conversationsByUser.has(key)) continue;
+
+            conversationsByUser.set(key, {
+                user: otherUser,
+                lastMessage: chat.message,
+                time: chat.updatedAt || chat.createdAt,
+            });
+        }
 
         res.status(200).json({
             success: true,
-            conversations: Array.from(conversations.values())
+            conversations: Array.from(conversationsByUser.values()),
         });
 
     } catch (error) {

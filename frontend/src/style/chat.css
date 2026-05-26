@@ -14,6 +14,7 @@ html, body {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100svh;
   width: 100%;
   overflow: hidden;
 }
@@ -34,6 +35,7 @@ html, body {
   background-color: #e5ddd5;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   min-width: 0; /* Prevents overflow */
+  min-height: 0;
 }
 
 /* Chat Header */
@@ -53,6 +55,32 @@ html, body {
   display: flex;
   align-items: center;
   gap: 15px;
+  min-width: 0;
+}
+
+.chat-back {
+  display: none;
+  appearance: none;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex: 0 0 auto;
+}
+
+.chat-back:active {
+  transform: translateY(1px);
+}
+
+.chat-back:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
 }
 
 .avatar {
@@ -62,15 +90,25 @@ html, body {
   border-radius: 50%;
 }
 
+.contact-info {
+  min-width: 0;
+}
+
 .contact-info h3 {
   font-size: 16px;
   font-weight: 500;
   margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .contact-info span {
   font-size: 13px;
   color: #e1f5e8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Chat Messages Area - Takes remaining space */
@@ -84,6 +122,8 @@ html, body {
   width: 100%;
   background-color: #e5ddd5;
   min-height: 0;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Message Styles */
@@ -106,7 +146,8 @@ html, body {
   border-radius: 8px;
   font-size: 14px;
   position: relative;
-  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
 }
 
@@ -146,6 +187,7 @@ html, body {
   width: 100%;
   border-top: 1px solid #e9edef;
   flex-shrink: 0;
+  min-width: 0;
 }
 
 .chat-input {
@@ -157,6 +199,7 @@ html, body {
   font-size: 15px;
   font-family: inherit;
   outline: none;
+  min-width: 0;
 }
 
 .chat-input:focus {
@@ -177,6 +220,7 @@ html, body {
   font-weight: 600;
   color: white;
   transition: background-color 0.2s;
+  flex: 0 0 auto;
 }
 
 .chat-submit:hover {
@@ -201,12 +245,19 @@ html, body {
   background: #a8a8a8;
 }
 
+/* Tablet */
+@media (max-width: 1024px) {
+  .chat-messages {
+    padding: 16px;
+  }
+
+  .message-bubble {
+    max-width: 72%;
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
-  .chat-main {
-    flex-direction: column;
-  }
-  
   .message-bubble {
     max-width: 80%;
   }
@@ -225,5 +276,55 @@ html, body {
   
   .chat-submit {
     padding: 6px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chat-header {
+    height: 56px;
+  }
+
+  .chat-messages {
+    padding: 12px;
+  }
+
+  .message-bubble {
+    max-width: 92%;
+  }
+
+  .chat-form {
+    gap: 8px;
+  }
+
+  .chat-submit {
+    padding: 8px 14px;
+    min-width: 72px;
+  }
+}
+
+/* Mobile: list first, chat full-screen on selection */
+@media (max-width: 640px) {
+  .chat-main .chat-section {
+    display: none;
+  }
+
+  .chat-main:not(.mobile-chat-open) .sideWindow {
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .chat-main.mobile-chat-open .sideWindow {
+    display: none;
+  }
+
+  .chat-main.mobile-chat-open .chat-section {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .chat-back {
+    display: inline-flex;
   }
 }

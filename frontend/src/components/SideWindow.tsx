@@ -1,26 +1,26 @@
 import "../style/sideSection.css";
 import { useState, useEffect } from "react";
-
-interface User {
-  _id: string;
-  name: string;
-  username: string;
-  email: string;
-}
+import type { UserSummary } from "../types/user";
 
 interface Conversation {
-  user: User;
+  user: UserSummary;
   lastMessage: string;
-  time: string;
+  time?: string;
+  lastMessageAt?: string;
+  lastMessageTime?: string;
 }
 
-export default function SideWindow() {
+type SideWindowProps = {
+  activeUserId: string | null;
+  onStartChat?: (user: UserSummary) => void;
+};
+
+export default function SideWindow({ activeUserId, onStartChat }: SideWindowProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [activeUserId, setActiveUserId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
+   const profileName = localStorage.getItem("userName") || localStorage.getItem("userEmail") || "User";
   // Fetch conversations from backend
   useEffect(() => {
     fetchConversations();
@@ -79,7 +79,7 @@ export default function SideWindow() {
 
   // Filter conversations based on search term
   const filteredConversations = conversations.filter(conv =>
-    conv.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (conv.user.name ?? "").toLowerCase().includes(searchTerm.toLowerCase()) ||
     conv.user.username.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -113,10 +113,10 @@ export default function SideWindow() {
       <div className="sidebar-header">
         <div className="profile-section">
           <div className="profile-avatar">
-            <span>M</span>
+            <span>{profileName.charAt(0).toUpperCase()}</span>
           </div>
           <div className="profile-info">
-            <h3>My Account</h3>
+            <h3>{profileName || "My Account"}</h3>
             <p>Online</p>
           </div>
         </div>
@@ -151,20 +151,20 @@ export default function SideWindow() {
             <div
               key={conv.user._id}
               className={`user-item ${activeUserId === conv.user._id ? "active" : ""}`}
-              onClick={() => setActiveUserId(conv.user._id)}
+              onClick={() => onStartChat?.(conv.user)}
             >
               {/* User Avatar */}
               <div className="user-avatar">
                 <div className="avatar-circle">
-                  {conv.user.name.charAt(0).toUpperCase()}
+                  {(conv.user.name || conv.user.username).charAt(0).toUpperCase()}
                 </div>
               </div>
 
               {/* User Info */}
               <div className="user-info">
                 <div className="user-name-row">
-                  <h4 className="user-name">{conv.user.name}</h4>
-                  <span className="message-time">{formatTime(conv.time)}</span>
+                  <h4 className="user-name">{conv.user.name || conv.user.username}</h4>
+                  <span className="message-time">{formatTime(conv.time || conv.lastMessageAt || conv.lastMessageTime || new Date().toISOString())}</span>
                 </div>
                 <div className="user-username">
                   @{conv.user.username}
