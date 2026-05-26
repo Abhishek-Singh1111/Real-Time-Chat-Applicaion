@@ -1,11 +1,19 @@
 require("dotenv").config();
 const express = require("express");
+const http = require("http");
+const socketConfig = require("./config/socket");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
-const chatRoutes =  require("./routes/chatRoutes")
+const chatRoutes = require("./routes/chatRoutes");
 const cors = require("cors");
+const PORT = process.env.PORT || 8000;
 const app = express();
+
+const server = http.createServer(app);
+
+socketConfig(server);
+
 
 // CORS Middleware - Fixed
 app.use(cors({
@@ -48,10 +56,10 @@ app.use((err, req, res, next) => {
 const startServer = async () => {
     await connectDB();
     
-    app.listen(8000, () => {
-        console.log("✅ Server is listening on port 8000");
-        console.log("📍 Signup endpoint: http://localhost:8000/api/auth/signup");
-        console.log("📍 Login endpoint: http://localhost:8000/api/auth/login");
+    server.listen(PORT, () => {
+        console.log(`Server is listening on port ${PORT}`);
+        console.log(`Signup endpoint: http://localhost:${PORT}/api/auth/signup`);
+        console.log(`Login endpoint: http://localhost:${PORT}/api/auth/login`);
     });
 };
 
