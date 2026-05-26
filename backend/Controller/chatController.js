@@ -1,0 +1,218 @@
+const Chat = require("../model/chatSchema");
+const User = require("../model/userSchema");
+const mongoose = require("mongoose");
+exports.sendMessage = async (req, res, next) => {
+    try {
+
+        const sender = req.user.userId;
+
+        const receiver = req.body?.receiver ?? req.body?.receiverId;
+        const message = req.body?.message;
+
+        if (!receiver) {
+            return res.status(400).json({
+                success: false,
+                message: "Receiver is required"
+            });
+        }
+
+        if (!mongoose.isValidObjectId(receiver)) {
+            return res.status(400).json({
+                success: false,
+                message: "Receiver must be a valid user id"
+            });
+        }
+
+        if (!message || String(message).trim() === "") {
+
+            return res.status(400).json({
+                success: false,
+                message: "Message is required"
+            });
+        }
+
+        const senderUser = await User.findById(sender).select("_id");
+        if (!senderUser) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid sender"
+            });
+        }
+
+        const receiverUser =
+            await User.findById(receiver);
+
+        if (!receiverUser) {
+
+            return res.status(404).json({
+                success: false,
+                message: "Receiver not found"
+            });
+        }
+
+        const newChat = await Chat.create({
+
+            sender,
+
+            receiver,
+
+            message
+        });
+
+        res.status(201).json({
+
+            success: true,
+
+            chat: newChat
+        });
+
+    } catch (error) {
+
+        next(error);
+    }
+}
+
+// Get chat history between two users
+exports.getChatHistory = async (req, res, next) => {
+    try {
+        const sender = req.user.userId;
+        const { receiverId } = req.params;
+
+        // Find all chats between sender and receiver
+        const chats = await Chat.find({
+            $or: [
+                { sender: sender, receiver: receiverId },
+                { sender: receiverId, receiver: sender }
+            ]
+        }).sort({ createdAt: 1 }); // Sort by oldest first
+
+        res.status(200).json({
+            success: true,
+            chats: chats
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Get all chats for a user (all conversations)
+exports.getUserChats = async (req, res, next) => {
+    try {
+        const userId = req.user.userId;
+
+        // Find all chats where user is either sender or receiver
+        const chats = await Chat.find({
+            $or: [
+                { sender: userId },
+                { receiver: userId }
+            ]
+        })
+        .populate("sender", "name username email")
+        .populate("receiver", "name username email")
+        .sort({ createdAt: -1 });
+
+        // Group by conversation
+        const conversations = new Map();
+        
+        chats.forEach(chat => {
+            const otherUser = chat.sender._id.toString() === userId ? chat.receiver : chat.sender;
+            const conversationId = otherUser._id.toString();
+            
+            if (!conversations.has(conversationId)) {
+                conversations.set(conversationId, {
+                    user: otherUser,
+                    lastMessage: chat.message,
+                    lastMessageTime: chat.createdAt,
+                    unreadCount: chat.receiver._id.toString() === userId && !chat.read ? 1 : 0
+                });
+            }
+        });
+
+        res.status(200).json({
+            success: true,
+            conversations: Array.from(conversations.values())
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.getConversations = async (
+    req,
+    res,
+    next
+) => {
+
+    try {
+
+        const userId = req.user.userId;
+
+        // Find all chats of logged-in user
+        const chats = await Chat.find({
+
+            $or: [
+
+                { sender: userId },
+
+                { receiver: userId }
+            ]
+
+        })
+
+        .populate("sender", "name username")
+
+        .populate("receiver", "name username")
+
+        .sort({ createdAt: -1 });
+
+        const conversationsMap = new Map();
+
+        chats.forEach((chat) => {
+
+            // Find the other user
+            const otherUser =
+
+                chat.sender._id.toString() === userId
+
+                ? chat.receiver
+
+                : chat.sender;
+
+            const otherUserId =
+                otherUser._id.toString();
+
+            // Only add latest message once
+            if (!conversationsMap.has(otherUserId)) {
+
+                conversationsMap.set(
+
+                    otherUserId,
+
+                    {
+                        user: otherUser,
+
+                        lastMessage: chat.message,
+
+                        time: chat.createdAt
+                    }
+                );
+            }
+        });
+
+        res.status(200).json({
+
+            success: true,
+
+            conversations:
+                Array.from(
+                    conversationsMap.values()
+                )
+        });
+
+    } catch (error) {
+
+        next(error);
+    }
+};

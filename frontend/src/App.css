@@ -1,0 +1,107 @@
+*{
+ padding: 0%;
+ margin: 0%;
+ box-sizing: border-box;
+}
+/* Container for when user is logged in - shows chat interface */
+.notlogin-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: #f0f2f5;
+}
+
+/* Container for when user is NOT logged in - shows message */
+.not-logged-in {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100%;
+  background: linear-gradient(135deg, #075e54 0%, #128c7e 100%);
+  color: white;
+  text-align: center;
+  gap: 20px;
+}
+
+.not-logged-in h2 {
+  font-size: 28px;
+  font-weight: 500;
+  margin: 0;
+  padding: 0 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  animation: fadeIn 0.5s ease;
+}
+
+.not-logged-in svg {
+  animation: bounce 2s infinite;
+  opacity: 0.8;
+}
+
+/* Optional: Add animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+  .notlogin-container {
+    flex-direction: column;
+  }
+  
+  .not-logged-in h2 {
+    font-size: 20px;
+  }
+  
+  .not-logged-in svg {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* Optional: Add a subtle pattern to the background */
+.not-logged-in {
+  position: relative;
+  overflow: hidden;
+}
+
+.not-logged-in::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+}
+
+/* Optional: Add WhatsApp icon behind the message */
+.not-logged-in::after {
+  content: "💬";
+  position: absolute;
+  font-size: 300px;
+  opacity: 0.05;
+  bottom: -50px;
+  right: -50px;
+  pointer-events: none;
+}

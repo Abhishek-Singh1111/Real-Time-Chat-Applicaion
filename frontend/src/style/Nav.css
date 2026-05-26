@@ -1,0 +1,84 @@
+.nav {
+  display: flex;
+
+  align-items: center;
+
+  padding: 15px 30px;
+
+  background-color: #fffcfc;
+  border-bottom: 1px solid #ddd;
+  height: 40px;
+  width: 100%;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.nav-center {
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+}
+
+.nav-right {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.nav a {
+  color: rgb(0, 0, 0);
+
+  text-decoration: none;
+
+  font-size: 18px;
+
+  font-family: 'Inter', sans-serif;
+
+  transition: 0.2s;
+}
+
+.nav a:hover {
+  color: #25D366;
+}
+
+.home-icon {
+  font-size: 24px;
+}
+
+.logout-button {
+  appearance: none;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  color: rgb(0, 0, 0);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-family: 'Inter', sans-serif;
+  padding: 8px 14px;
+  border-radius: 999px;
+  transition: color 0.2s, background-color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.08s;
+}
+
+.logout-button:hover {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #e11d48;
+}
+
+.logout-button:active {
+  transform: translateY(1px);
+}
+
+.logout-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.25);
+}

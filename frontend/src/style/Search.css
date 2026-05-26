@@ -1,0 +1,240 @@
+/* Compact Search UI (used inside Nav) */
+
+.search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+ 
+}
+
+.search-header {
+  display: none;
+}
+
+.search-type-selector {
+  display: none;
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+}
+
+.search-input-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+   border:#25D366 solid 2px;
+  border-radius: 999px;
+  padding: 2px 6px;
+}
+
+.search-input {
+  width: 240px;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 8px 10px;
+  font-size: 14px;
+}
+
+.search-input::placeholder {
+  color: #8696a0;
+}
+
+.search-input:focus {
+  box-shadow: none;
+}
+
+.search-input-group:focus-within {
+  border-color: rgba(37, 211, 102, 0.9);
+  box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.15);
+}
+
+.clear-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #667781;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.clear-btn:hover {
+  background: #f0f2f5;
+  color: #111b21;
+}
+
+.search-btn {
+  border: none;
+  cursor: pointer;
+  background-color: #25D366;
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.15s, transform 0.08s;
+}
+
+.search-btn:hover:not(:disabled) {
+  background-color: #20b859;
+}
+
+.search-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.search-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.search-message {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  right: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  z-index: 50;
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+}
+
+.search-message.success {
+  background-color: #dcf8c5;
+  color: #075e54;
+  border-left: 4px solid #25D366;
+}
+
+.search-message.error {
+  background-color: #ffe5e5;
+  color: #d32f2f;
+  border-left: 4px solid #d32f2f;
+}
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  width: 420px;
+  max-width: min(420px, calc(100vw - 30px));
+  background: #ffffff;
+  border: 1px solid #e9edef;
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+  z-index: 60;
+  overflow: hidden;
+}
+
+.results-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e9edef;
+}
+
+.results-header h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111b21;
+}
+
+.results-count {
+  font-size: 12px;
+  color: #667781;
+}
+
+.users-list {
+  max-height: 360px;
+  overflow: auto;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid #f0f2f5;
+}
+
+.user-card:last-child {
+  border-bottom: none;
+}
+
+.user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #128c7e;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex: 0 0 34px;
+}
+
+.user-details {
+  min-width: 0;
+  flex: 1;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111b21;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-username,
+.user-email {
+  font-size: 12px;
+  color: #667781;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-btn {
+  border: none;
+  cursor: pointer;
+  background: #f0f2f5;
+  color: #111b21;
+  border-radius: 999px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background-color 0.15s, transform 0.08s;
+  flex: 0 0 auto;
+}
+
+.chat-btn:hover {
+  background: #e9edef;
+}
+
+.chat-btn:active {
+  transform: translateY(1px);
+}
+
+@media (max-width: 640px) {
+  .search-input {
+    width: 160px;
+  }
+
+  .search-results {
+    width: calc(100vw - 30px);
+  }
+}
+
