@@ -22,7 +22,7 @@ socketConfig(server);
 
 // CORS Middleware - Fixed
 app.use(cors({
-    origin: "http://localhost:5173",  // No trailing slash
+    origin: process.env.origin,  
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true
