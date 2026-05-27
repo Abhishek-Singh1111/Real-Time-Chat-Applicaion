@@ -20,17 +20,43 @@ const server = http.createServer(app);
 socketConfig(server);
 
 
-// CORS Middleware - Fixed
-app.use(cors({
-    origin: process.env.origin,  
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true
-}));
+const normalizeOrigin = (value) => String(value || "").trim().replace(/\/+$/, "");
+
+const corsOriginEnv = process.env.CORS_ORIGIN || process.env.origin || "";
+const allowedOrigins = corsOriginEnv
+    .split(",")
+    .map(normalizeOrigin)
+    .filter(Boolean);
+
+// Always allow local dev, even in prod deploys
+allowedOrigins.push("http://localhost:5173", "http://localhost:3000");
+
+// CORS Middleware (Vercel/Render + local dev)
+app.use(
+    cors({
+        origin: (requestOrigin, callback) => {
+            if (!requestOrigin) return callback(null, true); // non-browser clients
+
+            const normalized = normalizeOrigin(requestOrigin);
+            if (allowedOrigins.includes(normalized)) return callback(null, true);
+
+            return callback(new Error(`CORS blocked for origin: ${requestOrigin}`));
+        },
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+        credentials: true,
+    })
+);
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Health check (useful for Render/Vercel debugging)
+app.get("/health", (req, res) => {
+    res.status(200).json({ ok: true });
+});
+
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
