@@ -1,4 +1,4 @@
-import "./style/Signup.css";
+import "./style/signup.css";
 import { useState } from "react";
 import { apiUrl } from "./config/api";
 
