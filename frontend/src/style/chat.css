@@ -40,15 +40,16 @@ html, body {
 
 /* Chat Header */
 .chat-header {
-  background-color: #075e54;
-  height: 60px;
+  background: linear-gradient(135deg, #075e54, #128c7e);
+  height: 64px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 16px;
+  padding: 0 18px;
   color: white;
   width: 100%;
   flex-shrink: 0;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06), 0 10px 26px rgba(0, 0, 0, 0.14);
 }
 
 .chat-header-info {
@@ -84,10 +85,18 @@ html, body {
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
-  background-color: #128c7e;
-  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: 0.2px;
+  color: #ffffff;
+  background: radial-gradient(120% 120% at 10% 10%, #34d399 0%, #22c55e 35%, #06b6d4 100%);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+  flex: 0 0 auto;
 }
 
 .contact-info {
@@ -96,7 +105,7 @@ html, body {
 
 .contact-info h3 {
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 650;
   margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
@@ -105,7 +114,7 @@ html, body {
 
 .contact-info span {
   font-size: 13px;
-  color: #e1f5e8;
+  color: rgba(225, 245, 232, 0.92);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -115,15 +124,17 @@ html, body {
 .chat-messages {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
   background-color: #e5ddd5;
   min-height: 0;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }
 
 /* Message Styles */
@@ -141,40 +152,46 @@ html, body {
 }
 
 .message-bubble {
-  max-width: 65%;
-  padding: 8px 12px;
-  border-radius: 8px;
+  width: fit-content;
+  max-width: min(65%, 560px);
+  padding: 10px 12px 8px;
+  border-radius: 14px;
   font-size: 14px;
+  line-height: 1.35;
   position: relative;
   overflow-wrap: anywhere;
   word-break: break-word;
+  white-space: pre-wrap;
+  display: inline-flex;
+  flex-direction: column;
   box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
 }
 
 .message.sent .message-bubble {
-  background-color: #dcf8c5;
-  color: #111b21;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 0;
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
+  background-color: #45e37f;
+  color: #ffffff;
+  border-top-right-radius: 6px;
 }
 
 .message.received .message-bubble {
   background-color: #ffffff;
   color: #111b21;
-  border-top-left-radius: 0;
-  border-top-right-radius: 8px;
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
+  border-top-left-radius: 6px;
 }
 
 .message-time {
-  font-size: 10px;
-  color: #667781;
-  margin-left: 8px;
-  float: right;
+  align-self: flex-end;
   margin-top: 4px;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.2px;
+  opacity: 0.85;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.message.received .message-time {
+  color: #667781;
+  opacity: 1;
 }
 
 /* Chat Input Form - Fixed at bottom */
@@ -252,14 +269,14 @@ html, body {
   }
 
   .message-bubble {
-    max-width: 72%;
+    max-width: min(72%, 560px);
   }
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .message-bubble {
-    max-width: 80%;
+    max-width: 84%;
   }
   
   .chat-header {
@@ -281,7 +298,13 @@ html, body {
 
 @media (max-width: 480px) {
   .chat-header {
-    height: 56px;
+    height: 60px;
+  }
+
+  .avatar {
+    width: 38px;
+    height: 38px;
+    font-size: 15px;
   }
 
   .chat-messages {
@@ -290,6 +313,7 @@ html, body {
 
   .message-bubble {
     max-width: 92%;
+    padding: 10px 12px 8px;
   }
 
   .chat-form {

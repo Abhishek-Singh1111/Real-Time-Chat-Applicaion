@@ -81,11 +81,19 @@ export default function ChatSection() {
             _id: string;
             message: string;
             sender: unknown;
+            receiver: unknown;
             createdAt: string;
           };
 
           const senderId = normalizeId(chatObj.sender);
-          const isMe = !!currentUserId && !!senderId && String(senderId) === String(currentUserId);
+          const receiverIdInChat = normalizeId(chatObj.receiver);
+
+          const isFromOtherUser = !!senderId && String(senderId) === String(receiverId);
+          const isToOtherUser = !!receiverIdInChat && String(receiverIdInChat) === String(receiverId);
+
+          const isMe =
+            (isToOtherUser && !isFromOtherUser) ||
+            (!!currentUserId && !!senderId && String(senderId) === String(currentUserId));
 
           return {
             id: chatObj._id,
@@ -223,7 +231,9 @@ export default function ChatSection() {
               >
                 ←
               </button>
-              <div className="avatar"></div>
+	              <div className="avatar" aria-hidden="true">
+	                {activeChatUser ? (activeChatUser.name || activeChatUser.username).charAt(0).toUpperCase() : "U"}
+	              </div>
               <div className="contact-info">
                 <h3>{activeChatUser ? (activeChatUser.name || activeChatUser.username) : "Select a chat"}</h3>
                 <span>{activeChatUser ? `@${activeChatUser.username}` : "Search a user and click Message"}</span>

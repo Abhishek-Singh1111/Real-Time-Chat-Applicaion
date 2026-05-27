@@ -1,5 +1,5 @@
 import "../style/sideSection.css";
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { UserSummary } from "../types/user";
 import { apiUrl } from "../config/api";
 
@@ -21,16 +21,14 @@ export default function SideWindow({ activeUserId, onStartChat }: SideWindowProp
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-   const profileName = localStorage.getItem("userName") || localStorage.getItem("userEmail") || "User";
-  // Fetch conversations from backend
-  useEffect(() => {
-    fetchConversations();
-  }, []);
 
-  const fetchConversations = async () => {
+  const profileName =
+    localStorage.getItem("userName") || localStorage.getItem("userEmail") || "User";
+
+  const fetchConversations = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
-      
+      const token = localStorage.getItem("token");
+
       if (!token) {
         setError("Please login first");
         setLoading(false);
@@ -38,11 +36,11 @@ export default function SideWindow({ activeUserId, onStartChat }: SideWindowProp
       }
 
       const response = await fetch(apiUrl("/api/chats/conversations"), {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
       const data = await response.json();
@@ -59,7 +57,13 @@ export default function SideWindow({ activeUserId, onStartChat }: SideWindowProp
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Fetch conversations from backend
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchConversations();
+  }, [fetchConversations]);
 
   // Format time display
   const formatTime = (timestamp: string) => {

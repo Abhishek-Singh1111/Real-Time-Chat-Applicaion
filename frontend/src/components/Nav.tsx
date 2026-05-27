@@ -2,7 +2,7 @@ import { FaHome } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import Search from "./Search";
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import "../style/Nav.css";
 import type { UserSummary } from "../types/user";
 
@@ -14,6 +14,8 @@ export default function Nav({ onStartChat }: NavProps) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profileName, setProfileName] = useState<string | null>(null);
   const [profileEmail, setProfileEmail] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,6 +39,28 @@ export default function Nav({ onStartChat }: NavProps) {
     };
   }, []);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+      if (!target) return;
+      if (!menuRef.current) return;
+      if (!menuRef.current.contains(target)) setMenuOpen(false);
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+
+    window.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [menuOpen]);
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
@@ -45,14 +69,15 @@ export default function Nav({ onStartChat }: NavProps) {
     setIsLoggedIn(false);
     setProfileName(null);
     setProfileEmail(null);
+    setMenuOpen(false);
     navigate("/", { replace: true });
   };
 
   return (
     <div className="nav">
       <div className="nav-left">
-        <Link to="/" className="home-icon">
-          <FaHome />
+        <Link to="/" className="home-icon" aria-label="Home">
+          <FaHome aria-hidden="true" focusable="false" />
         </Link>
       </div>
 
@@ -62,12 +87,15 @@ export default function Nav({ onStartChat }: NavProps) {
 
       <div className="nav-right">
         {isLoggedIn ? (
-          <>
-          <button type="button" onClick={handleLogout} className="logout-button">
-            <FiLogOut aria-hidden="true" focusable="false" />
-            Logout
-          </button>
-            <div className="nav-profile" title={profileEmail || profileName || ""}>
+          <div className="nav-profile-wrap" ref={menuRef}>
+            <button
+              type="button"
+              className="nav-profile"
+              title={profileEmail || profileName || ""}
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((v) => !v)}
+            >
               <div className="nav-profile-avatar" aria-hidden="true">
                 {(profileName || "G").charAt(0).toUpperCase()}
               </div>
@@ -77,9 +105,15 @@ export default function Nav({ onStartChat }: NavProps) {
                   <div className="nav-profile-email">{profileEmail}</div>
                 ) : null}
               </div>
+            </button>
+
+            <div className={`nav-menu ${menuOpen ? "open" : ""}`} role="menu">
+              <button type="button" className="nav-menu-item" role="menuitem" onClick={handleLogout}>
+                <FiLogOut aria-hidden="true" focusable="false" />
+                Logout
+              </button>
             </div>
-          </>
-          
+          </div>
         ) : (
           <>
             <Link to="/login">Login</Link>
