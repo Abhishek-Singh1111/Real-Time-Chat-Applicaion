@@ -5,6 +5,7 @@ import Search from "./Search";
 import { useEffect, useRef, useState } from "react";
 import "../style/Nav.css";
 import type { UserSummary } from "../types/user";
+import { FaMessage } from "react-icons/fa6";
 
 type NavProps = {
   onStartChat?: (user: UserSummary) => void;
@@ -77,7 +78,7 @@ export default function Nav({ onStartChat }: NavProps) {
     <div className="nav">
       <div className="nav-left">
         <Link to="/" className="home-icon" aria-label="Home">
-          <FaHome aria-hidden="true" focusable="false" />
+          <FaMessage aria-hidden="true" focusable="false" />
         </Link>
       </div>
 

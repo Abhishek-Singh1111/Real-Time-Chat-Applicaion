@@ -2,13 +2,19 @@ const Chat = require("../model/chatSchema");
 const User = require("../model/userSchema");
 const mongoose = require("mongoose");
 exports.sendMessage = async (req, res, next) => {
-    try {
+    console.log("sendMessage called");
 
+    try {
         const sender = req.user.userId;
 
-        const receiver = req.body?.receiver ?? req.body?.receiverId;
-        const message = req.body?.message;
+        const receiver =
+            req.body?.receiver ??
+            req.body?.receiverId;
 
+        const message =
+            req.body?.message?.trim();
+
+        // Validation
         if (!receiver) {
             return res.status(400).json({
                 success: false,
@@ -23,15 +29,17 @@ exports.sendMessage = async (req, res, next) => {
             });
         }
 
-        if (!message || String(message).trim() === "") {
-
+        if (!message) {
             return res.status(400).json({
                 success: false,
                 message: "Message is required"
             });
         }
 
-        const senderUser = await User.findById(sender).select("_id");
+        // Check sender
+        const senderUser =
+            await User.findById(sender).select("_id");
+
         if (!senderUser) {
             return res.status(401).json({
                 success: false,
@@ -39,38 +47,54 @@ exports.sendMessage = async (req, res, next) => {
             });
         }
 
+        // Check receiver
         const receiverUser =
-            await User.findById(receiver);
+            await User.findById(receiver).select("_id");
 
         if (!receiverUser) {
-
             return res.status(404).json({
                 success: false,
                 message: "Receiver not found"
             });
         }
 
+        // Create chat
         const newChat = await Chat.create({
-
             sender,
-
             receiver,
-
             message
         });
 
+        // Add chat reference to sender
+        await User.findByIdAndUpdate(
+            sender,
+            {
+                $push: {
+                    chats: newChat._id
+                }
+            }
+        );
+
+        // Add chat reference to receiver
+        await User.findByIdAndUpdate(
+            receiver,
+            {
+                $push: {
+                    chats: newChat._id
+                }
+            }
+        );
+
         res.status(201).json({
-
             success: true,
-
             chat: newChat
         });
 
     } catch (error) {
-
+        console.error("Send Message Error:", error);
         next(error);
     }
-}
+};
 
 // Get chat history between two users
 exports.getChatHistory = async (req, res, next) => {
