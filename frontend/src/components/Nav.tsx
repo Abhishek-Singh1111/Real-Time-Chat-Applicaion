@@ -1,4 +1,3 @@
-import { FaHome } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import Search from "./Search";
