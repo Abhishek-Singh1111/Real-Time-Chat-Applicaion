@@ -2,7 +2,8 @@ const rawApiUrl = import.meta.env.VITE_API_URL as string | undefined;
 const cleanedApiUrl = (rawApiUrl ?? "")
   .trim()
   .replace(/^['"]|['"]$/g, "");
-const fallbackApiUrl = import.meta.env.DEV ? "http://localhost:8000" : "";
+const locationOrigin = typeof window !== "undefined" ? window.location.origin : "";
+const fallbackApiUrl = import.meta.env.DEV ? "http://localhost:8000" : locationOrigin;
 
 export const API_BASE_URL = (cleanedApiUrl || fallbackApiUrl).replace(/\/+$/, "");
 

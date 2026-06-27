@@ -10,8 +10,35 @@ const chatRoutes = require("./routes/chatRoutes");
 const cors = require("cors");
 
 // Render/Node expects PORT to be a number
-const parsedPort = Number.parseInt(String(process.env.PORT ?? ""), 10);
-const PORT = Number.isFinite(parsedPort) ? parsedPort : 8000;
+const parsePortValue = (value) => {
+    if (!value) return undefined;
+
+    const parsedNumber = Number.parseInt(String(value), 10);
+    if (Number.isFinite(parsedNumber)) return parsedNumber;
+
+    try {
+        const url = new URL(String(value));
+        if (url.port) {
+            const parsedUrlPort = Number.parseInt(url.port, 10);
+            if (Number.isFinite(parsedUrlPort)) return parsedUrlPort;
+        }
+    } catch (_err) {
+        // Not a URL, ignore
+    }
+
+    return undefined;
+};
+
+const isProduction = process.env.NODE_ENV === "production";
+const PORT = parsePortValue(process.env.PORT);
+
+if (isProduction && PORT == null) {
+    console.error("Production requires a valid numeric PORT environment variable from the cloud provider.");
+    process.exit(1);
+}
+
+const listenPort = PORT ?? 8000;
+
 const app = express();
 
 const server = http.createServer(app);
@@ -96,10 +123,10 @@ const startServer = async () => {
     await connectDB();
     
     server.on("error", handleServerError);
-    server.listen(PORT, () => {
-        console.log(`Server is listening on port ${PORT}`);
-        console.log(`Signup endpoint: http://localhost:${PORT}/api/auth/signup`);
-        console.log(`Login endpoint: http://localhost:${PORT}/api/auth/login`);
+    server.listen(listenPort, () => {
+        console.log(`Server is listening on port ${listenPort}`);
+        console.log(`Signup endpoint: http://localhost:${listenPort}/api/auth/signup`);
+        console.log(`Login endpoint: http://localhost:${listenPort}/api/auth/login`);
     });
 };
 
