@@ -28,7 +28,18 @@ const generateUniqueUsername = async ({ name, email }) => {
 
 exports.signup = async (req, res, next) => {
     try {
-        const { name, email, password } = req.body;        
+        const source = Object.keys(req.body || {}).length ? req.body : req.query;
+        const name = source.name || source.username || "";
+        const email = source.email;
+        const password = source.password;
+
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "Email and password are required for signup"
+            });
+        }
+
         // Check if user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -39,7 +50,7 @@ exports.signup = async (req, res, next) => {
         }
         
         // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(String(password), 10);
         
         const username = await generateUniqueUsername({ name, email });
 
@@ -92,22 +103,30 @@ exports.signup = async (req, res, next) => {
 exports.login = async (req, res, next) => {
 
     try {
+        const source = Object.keys(req.body || {}).length ? req.body : req.query;
+        const email = source.email;
+        const password = source.password;
 
-        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "Email and password are required for login"
+            });
+        }
 
         // Find user
         const existingUser = await User.findOne({ email });
 
         if (!existingUser) {
-           return res.status(404).json({  // Use 404 for not found
+            return res.status(404).json({
                 success: false,
-                message: "User not found"  // Specific message for non-existent user
+                message: "User not found"
             });
         }
 
         // Compare passwords
         const isMatch = await bcrypt.compare(
-            password,
+            String(password),
             existingUser.password
         );
 
@@ -124,7 +143,7 @@ exports.login = async (req, res, next) => {
                 userId: existingUser.id,
                 email: existingUser.email
             },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET || "secretkeyappearshere",
             {
                 expiresIn: "1h"
             }
@@ -141,9 +160,11 @@ exports.login = async (req, res, next) => {
         });
 
     } catch (error) {
-
-        return next(new Error("Error! Something went wrong."));
-
+        console.error("Login error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Error! Something went wrong."
+        });
     }
 
 };
