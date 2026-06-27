@@ -47,11 +47,15 @@ socketConfig(server);
 
 const normalizeOrigin = (value) => String(value || "").trim().replace(/\/+$/, "");
 
-const corsOriginEnv = process.env.CORS_ORIGIN;
-const allowedOrigins = corsOriginEnv
-    .split(",")
-    .map(normalizeOrigin)
-    .filter(Boolean);
+const corsOriginEnv = String(process.env.CORS_ORIGIN || "");
+const allowedOrigins = [
+    ...corsOriginEnv
+        .split(",")
+        .map(normalizeOrigin)
+        .filter(Boolean),
+    "http://localhost:5173",
+    "http://localhost:3000",
+].filter(Boolean);
 
 // CORS Middleware
 app.use(
@@ -108,7 +112,7 @@ const handleServerError = (error) => {
         throw error;
     }
 
-    const bind = typeof PORT === "string" ? `Pipe ${PORT}` : `Port ${PORT}`;
+    const bind = typeof listenPort === "string" ? `Pipe ${listenPort}` : `Port ${listenPort}`;
 
     if (error.code === "EADDRINUSE") {
         console.error(`${bind} is already in use. Please stop the process using it or change the PORT environment variable.`);
