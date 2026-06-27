@@ -79,9 +79,26 @@ app.use((err, req, res, next) => {
     });
 });
 
+const handleServerError = (error) => {
+    if (error.syscall !== "listen") {
+        throw error;
+    }
+
+    const bind = typeof PORT === "string" ? `Pipe ${PORT}` : `Port ${PORT}`;
+
+    if (error.code === "EADDRINUSE") {
+        console.error(`${bind} is already in use. Please stop the process using it or change the PORT environment variable.`);
+        process.exit(1);
+    }
+
+    console.error("Server error:", error);
+    process.exit(1);
+};
+
 const startServer = async () => {
     await connectDB();
     
+    server.on("error", handleServerError);
     server.listen(PORT, () => {
         console.log(`Server is listening on port ${PORT}`);
         console.log(`Signup endpoint: http://localhost:${PORT}/api/auth/signup`);
