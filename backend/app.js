@@ -2,12 +2,12 @@ const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
 const express = require("express");
 const http = require("http");
+const cors = require("cors");
 const socketConfig = require("./config/socket");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
-const cors = require("cors");
 
 // Render/Node expects PORT to be a number
 const parsePortValue = (value) => {
@@ -38,13 +38,13 @@ if (isProduction && PORT == null) {
 }
 
 const listenPort = PORT ?? 8000;
-
 const app = express();
-
 const server = http.createServer(app);
 
+// Initialize Sockets
 socketConfig(server);
 
+// Normalize Origins to prevent trailing slash mismatches
 const normalizeOrigin = (value) => String(value || "").trim().replace(/\/+$/, "");
 
 const corsOriginEnv = String(process.env.CORS_ORIGIN || "");
@@ -61,10 +61,18 @@ const allowedOrigins = [
 app.use(
     cors({
         origin: (requestOrigin, callback) => {
+            // Allow requests with no origin (like mobile apps, curl, or Postman)
             if (!requestOrigin) return callback(null, true);
+            
             const normalized = normalizeOrigin(requestOrigin);
-            if (allowedOrigins.includes(normalized)) return callback(null, true);
-            return callback(new Error(`CORS blocked for origin: ${requestOrigin}`));
+            if (allowedOrigins.includes(normalized)) {
+                return callback(null, true);
+            }
+            
+            // Generate a proper error with an explicit 403 status to prevent 500 runtime crashes
+            const corsError = new Error(`CORS blocked for origin: ${requestOrigin}`);
+            corsError.statusCode = 403;
+            return callback(corsError);
         },
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
@@ -72,7 +80,7 @@ app.use(
     })
 );
 
-// Middleware
+// Body Parsing Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -81,9 +89,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chats", chatRoutes);
 
-// JSON error handler
+// Global JSON error handler
 app.use((err, req, res, next) => {
-    console.error(err);
+    console.error("Error Caught in Middleware:", err.message);
 
     if (res.headersSent) return next(err);
 
@@ -129,8 +137,6 @@ const startServer = async () => {
     server.on("error", handleServerError);
     server.listen(listenPort, () => {
         console.log(`Server is listening on port ${listenPort}`);
-        console.log(`Signup endpoint: http://localhost:${listenPort}/api/auth/signup`);
-        console.log(`Login endpoint: http://localhost:${listenPort}/api/auth/login`);
     });
 };
 
