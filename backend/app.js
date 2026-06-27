@@ -20,14 +20,11 @@ socketConfig(server);
 
 const normalizeOrigin = (value) => String(value || "").trim().replace(/\/+$/, "");
 
-const corsOriginEnv = process.env.CORS_ORIGIN || process.env.origin || "";
+const corsOriginEnv = process.env.CORS_ORIGIN;
 const allowedOrigins = corsOriginEnv
     .split(",")
     .map(normalizeOrigin)
     .filter(Boolean);
-
-// Always allow local dev
-allowedOrigins.push("http://localhost:5173", "http://localhost:3000");
 
 // CORS Middleware
 app.use(
