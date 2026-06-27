@@ -47,28 +47,23 @@ socketConfig(server);
 // Normalize Origins to prevent trailing slash mismatches
 const normalizeOrigin = (value) => String(value || "").trim().replace(/\/+$/, "");
 
+// ONLY accept origins from your environment variables. No fallbacks, no wildcards.
 const corsOriginEnv = String(process.env.CORS_ORIGIN || process.env.FRONTEND_URL || "");
 const allowedOrigins = [
-    ...new Set([
-        ...corsOriginEnv
+    ...new Set(
+        corsOriginEnv
             .split(",")
             .map(normalizeOrigin)
-            .filter(Boolean),
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:3000",
-        "https://real-time-chat-applicaion.vercel.app",
-    ].filter(Boolean)),
+            .filter(Boolean)
+    ),
 ];
 
 const isAllowedOrigin = (requestOrigin) => {
+    // Allow non-browser server-to-server or tools (like Postman) requests if needed
     if (!requestOrigin) return true;
 
     const normalized = normalizeOrigin(requestOrigin);
-    if (allowedOrigins.includes(normalized)) return true;
-
-    return /^(https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?|https:\/\/(?:[a-z0-9-]+\.)*vercel\.app)$/i.test(normalized);
+    return allowedOrigins.includes(normalized);
 };
 
 const corsOptions = {
