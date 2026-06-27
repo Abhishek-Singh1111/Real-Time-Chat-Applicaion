@@ -4,7 +4,7 @@ const cleanedApiUrl = (rawApiUrl ?? "")
   .replace(/^['"]|['"]$/g, "");
 const fallbackApiUrl = import.meta.env.DEV ? "http://localhost:8000" : "";
 
-export const API_BASE_URL = (cleanedApiUrl || fallbackApiUrl).replace(/\/+$, "");
+export const API_BASE_URL = (cleanedApiUrl || fallbackApiUrl).replace(/\/+$/, "");
 
 export function apiUrl(path: string) {
   if (!API_BASE_URL) {
