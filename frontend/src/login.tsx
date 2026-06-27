@@ -54,13 +54,14 @@ export default function Login() {
         // Store token if needed
         if (data.data?.token) {
           localStorage.setItem("token", data.data.token);
+          localStorage.setItem("userId", data.data.userId || "");
           localStorage.setItem("userName", data.data.name || "");
           localStorage.setItem("userEmail", data.data.email || "");
           console.log("Token saved:", data.data.token);
         }
-        // Optional: Redirect after 2 seconds
+        // Redirect to chat page
         setTimeout(() => {
-          window.location.href = "/dashboard"; // Or wherever you want to redirect
+          window.location.href = "/";
         }, 1000);
       } else {
         // Check for specific error messages from backend

@@ -12,13 +12,18 @@ const chatSchema = new mongoose.Schema({
       ref: "User",
       required: true
    },
+   image_url:{
+       type:String
 
+   },
    message: {
       type: String,
-      required: true
-   }
-
+      required: false,
+      default: null
+   },
+   
 }, {
    timestamps: true
-});
+},
+);
 module.exports = mongoose.model("Chat", chatSchema);

@@ -55,10 +55,13 @@ export default function Signup() {
         // Store token if needed
         if (data.data?.token) {
           localStorage.setItem("token", data.data.token);
+          localStorage.setItem("userId", data.data.userId || "");
+          localStorage.setItem("userName", data.data.name || "");
+          localStorage.setItem("userEmail", data.data.email || "");
           console.log("Token saved:", data.data.token);
         }
         setTimeout(() => {
-          window.location.href = "/dashboard"; 
+          window.location.href = "/";
         }, 2000);
 
       } else {

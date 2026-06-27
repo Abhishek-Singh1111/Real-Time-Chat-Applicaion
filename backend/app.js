@@ -9,8 +9,7 @@ const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const cors = require("cors");
 
-// Render/Node expects PORT to be a number. If `.env` accidentally sets PORT to a URL,
-// `server.listen()` will throw (EACCES / invalid address). Coerce to a numeric port.
+// Render/Node expects PORT to be a number
 const parsedPort = Number.parseInt(String(process.env.PORT ?? ""), 10);
 const PORT = Number.isFinite(parsedPort) ? parsedPort : 8000;
 const app = express();
@@ -18,7 +17,6 @@ const app = express();
 const server = http.createServer(app);
 
 socketConfig(server);
-
 
 const normalizeOrigin = (value) => String(value || "").trim().replace(/\/+$/, "");
 
@@ -28,18 +26,16 @@ const allowedOrigins = corsOriginEnv
     .map(normalizeOrigin)
     .filter(Boolean);
 
-// Always allow local dev, even in prod deploys
+// Always allow local dev
 allowedOrigins.push("http://localhost:5173", "http://localhost:3000");
 
-// CORS Middleware (Vercel/Render + local dev)
+// CORS Middleware
 app.use(
     cors({
         origin: (requestOrigin, callback) => {
-            if (!requestOrigin) return callback(null, true); // non-browser clients
-
+            if (!requestOrigin) return callback(null, true);
             const normalized = normalizeOrigin(requestOrigin);
             if (allowedOrigins.includes(normalized)) return callback(null, true);
-
             return callback(new Error(`CORS blocked for origin: ${requestOrigin}`));
         },
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -57,7 +53,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chats", chatRoutes);
 
-// JSON error handler (keeps frontend fetch().json() working)
+// JSON error handler
 app.use((err, req, res, next) => {
     console.error(err);
 
@@ -72,6 +68,9 @@ app.use((err, req, res, next) => {
     } else if (err.name === "ValidationError") {
         statusCode = 400;
         message = "Validation error";
+    } else if (err.code === "LIMIT_FILE_SIZE") {
+        statusCode = 400;
+        message = "File too large";
     }
 
     res.status(statusCode).json({
@@ -79,6 +78,7 @@ app.use((err, req, res, next) => {
         message
     });
 });
+
 const startServer = async () => {
     await connectDB();
     
