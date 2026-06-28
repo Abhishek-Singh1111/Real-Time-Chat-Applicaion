@@ -71,28 +71,6 @@
   transition: 0.2s;
 }
 
-.nav a:hover {
-  color: #25D366;
-}
-
-.home-icon {
-  font-size: 24px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  transition: background-color 0.15s, transform 0.08s;
-}
-
-.home-icon:hover {
-  background: rgba(37, 211, 102, 0.12);
-}
-
-.home-icon:active {
-  transform: translateY(1px);
-}
 
 .logout-button {
   appearance: none;
@@ -291,5 +269,130 @@
 
   .nav-profile-email {
     display: none;
+  }
+}
+/* ===========================
+   Left Navbar Section
+=========================== */
+.nav-left {
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+  flex-shrink: 0;
+}
+
+/* Home Link */
+.home-icon {
+  text-decoration: none;
+}
+
+/* Hello Badge */
+.hello-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  padding: 5px 10px;
+  border-radius: 50px;
+
+  background: linear-gradient(135deg, #5b6dfc, #8b5cf6);
+  color: #fff;
+
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+
+  box-shadow: 0 6px 16px rgba(91, 109, 252, 0.3);
+
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.hello-text:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(91, 109, 252, 0.4);
+}
+
+/* Emoji */
+.wave {
+  display: inline-block;
+  animation: wave 2s infinite;
+  transform-origin: 70% 70%;
+}
+
+/* Wave Animation */
+@keyframes wave {
+  0%,100% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(14deg);
+  }
+  20% {
+    transform: rotate(-8deg);
+  }
+  30% {
+    transform: rotate(14deg);
+  }
+  40% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(10deg);
+  }
+  60% {
+    transform: rotate(0deg);
+  }
+}
+
+/* ===========================
+   Tablet (≤768px)
+=========================== */
+@media (max-width: 768px) {
+
+  .nav-left {
+    padding-left: 18px;
+  }
+
+  .hello-text {
+    padding: 8px 16px;
+    font-size: 0.95rem;
+    gap: 6px;
+  }
+}
+
+/* ===========================
+   Mobile (≤480px)
+=========================== */
+@media (max-width: 480px) {
+
+  .nav-left {
+    padding-left: 6px;
+  }
+
+  .hello-text {
+    padding: 7px 14px;
+    font-size: 0.9rem;
+    border-radius: 40px;
+  }
+
+  .wave {
+    font-size: 1rem;
+  }
+}
+
+/* ===========================
+   Very Small Phones (≤360px)
+=========================== */
+@media (max-width: 360px) {
+
+  .hello-text {
+    padding: 6px 12px;
+    font-size: 0.82rem;
+    gap: 5px;
+  }
+
+  .wave {
+    font-size: 0.95rem;
   }
 }

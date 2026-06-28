@@ -75,7 +75,7 @@ export default function Search({ onStartChat }: SearchProps) {
     <div className="search-container">
       <div className="search-header">
         <h2>Search Users</h2>
-        <p>Find users by username or email</p>
+        <p>Find users </p>
       </div>
 
       <form className="search-form" onSubmit={handleSearch}>
