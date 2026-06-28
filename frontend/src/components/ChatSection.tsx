@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "../style/chat.css";
 import SideWindo from '../components/SideWindow';
 import Nav from "./Nav";

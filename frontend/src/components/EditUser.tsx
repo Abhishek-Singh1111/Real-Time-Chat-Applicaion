@@ -120,9 +120,10 @@ export default function EditUser() {
       } else {
         setMsg(data.message || `Server error: ${res.status}`);
       }
-    } catch (err) {
-      console.error("Upload error:", err);
-      setMsg(`Network error: ${err.message || "Please check your connection"}`);
+    } catch (error: unknown) {
+      console.error("Upload error:", error);
+      const message = error instanceof Error ? error.message : String(error);
+      setMsg(`Network error: ${message}`);
     } finally {
       setLoading(false);
     }

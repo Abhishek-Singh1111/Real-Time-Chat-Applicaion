@@ -1,5 +1,4 @@
 import type { UserSummary } from "../types/user";
-import { useUser } from "../hooks/userUser"; // ✅ Fixed: useUser instead of userUser
 
 interface ChatHeaderProps {
   activeChatUser: UserSummary | null;
@@ -7,9 +6,6 @@ interface ChatHeaderProps {
 }
 
 export default function ChatHeader({ activeChatUser, onBack }: ChatHeaderProps) {
-  const { user, loading } = useUser();
-  const profilePic = user?.profile_img || null;
-  const userName = user?.name || "User";
 
   // For the active chat user's profile pic
   const getActiveUserPic = () => {
