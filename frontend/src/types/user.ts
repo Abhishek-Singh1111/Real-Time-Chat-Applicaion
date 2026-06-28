@@ -3,6 +3,9 @@ export interface UserSummary {
   username: string;
   email: string;
   name?: string;
+  profile_img?: string;
+  profilePicture?: string;
+  profilePic?: string;
   createdAt?: string;
 }
 

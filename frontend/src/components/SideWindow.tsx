@@ -1,7 +1,8 @@
 import "../style/sideSection.css";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import type { UserSummary } from "../types/user";
 import { apiUrl } from "../config/api";
+import { Link, useNavigate } from "react-router-dom";
 
 interface Conversation {
   user: UserSummary;
@@ -14,16 +15,40 @@ interface Conversation {
 type SideWindowProps = {
   activeUserId: string | null;
   onStartChat?: (user: UserSummary) => void;
+  onEditProfile?: () => void;
 };
 
-export default function SideWindow({ activeUserId, onStartChat }: SideWindowProps) {
+export default function SideWindow({ 
+  activeUserId, 
+  onStartChat,
+  onEditProfile 
+}: SideWindowProps) {
+  const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showEditMenu, setShowEditMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [failedAvatarIds, setFailedAvatarIds] = useState<Set<string>>(new Set());
+  const [headerImageFailed, setHeaderImageFailed] = useState(false);
 
-  const profileName =
-    localStorage.getItem("userName") || localStorage.getItem("userEmail") || "User";
+  // Get user profile data from backend
+  const [profilePic, setProfilePic] = useState<string | null>(null);
+  const [profileName, setProfileName] = useState<string>(localStorage.getItem("userName") || "User");
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowEditMenu(false);
+      }
+    };
+
+    if (showEditMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showEditMenu]);
 
   const fetchConversations = useCallback(async () => {
     try {
@@ -59,11 +84,34 @@ export default function SideWindow({ activeUserId, onStartChat }: SideWindowProp
     }
   }, []);
 
+  const fetchCurrentUser = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await fetch(apiUrl("/api/users/me"), {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) return;
+      const data = await response.json();
+      const user = data.user || data;
+      setProfilePic(user.profile_img || user.profileImg || null);
+      setProfileName(user.name || user.username || profileName);
+    } catch (error) {
+      console.error("Error fetching current user:", error);
+    }
+  }, [profileName]);
+
   // Fetch conversations from backend
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     void fetchConversations();
-  }, [fetchConversations]);
+    void fetchCurrentUser();
+  }, [fetchConversations, fetchCurrentUser]);
 
   // Format time display
   const formatTime = (timestamp: string) => {
@@ -87,6 +135,59 @@ export default function SideWindow({ activeUserId, onStartChat }: SideWindowProp
     (conv.user.name ?? "").toLowerCase().includes(searchTerm.toLowerCase()) ||
     conv.user.username.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const normalizeProfileUrl = (profile: unknown): string | null => {
+    if (!profile) return null;
+    if (typeof profile === "string") {
+      const trimmed = profile.trim();
+      return trimmed ? trimmed : null;
+    }
+    if (typeof profile === "object") {
+      const maybeProfile = profile as Record<string, unknown>;
+      const candidate = maybeProfile.imgUrl || maybeProfile.url || maybeProfile.profile_img;
+      if (typeof candidate === "string") {
+        const trimmed = candidate.trim();
+        return trimmed ? trimmed : null;
+      }
+    }
+    return null;
+  };
+
+  // Get profile picture for a user
+  const getUserProfilePic = (user: UserSummary) => {
+    if (!user?._id || failedAvatarIds.has(user._id)) {
+      return null;
+    }
+
+    return (
+      normalizeProfileUrl(user.profile_img) ||
+      normalizeProfileUrl(user.profilePic) ||
+      normalizeProfileUrl(user.profilePicture)
+    );
+  };
+
+  // Get display name for a user
+  const getDisplayName = (user: UserSummary) => {
+    return (user.name || user.username || "U").charAt(0).toUpperCase();
+  };
+
+  // Handle edit profile
+  const handleEditProfile = () => {
+    if (onEditProfile) {
+      onEditProfile();
+    } else {
+      navigate('/edit-profile');
+    }
+    setShowEditMenu(false);
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userName");
+    navigate('/login');
+    setShowEditMenu(false);
+  };
 
   if (loading) {
     return (
@@ -117,16 +218,69 @@ export default function SideWindow({ activeUserId, onStartChat }: SideWindowProp
       {/* Sidebar Header */}
       <div className="sidebar-header">
         <div className="profile-section">
-          <div className="profile-avatar">
-            <span>{profileName.charAt(0).toUpperCase()}</span>
+          {/* Profile Avatar with Photo */}
+          <div className="profile-avatar-container">
+            <div className="profile-avatar">
+              {profilePic && !headerImageFailed ? (
+                <img 
+                  src={profilePic} 
+                  alt={`${profileName}'s profile`} 
+                  className="avatar-image"
+                  onError={() => setHeaderImageFailed(true)}
+                />
+              ) : (
+                <span>{profileName.charAt(0).toUpperCase()}</span>
+              )}
+            </div>
+            
+            {/* Edit button on avatar */}
+            <Link
+              to="/edit-profile"
+              className="avatar-edit-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              aria-label="Edit profile"
+              title="Edit profile"
+            >
+              ✏️
+            </Link>
           </div>
+          
           <div className="profile-info">
-            <h3>{profileName || "My Account"}</h3>
-            <p>Online</p>
+            <h3>{profileName}</h3>
+            <p>🟢 Online</p>
           </div>
         </div>
         <div className="sidebar-actions">
-          <button className="action-icon">⚙️</button>
+          <button 
+            className="action-icon"
+            onClick={() => setShowEditMenu(!showEditMenu)}
+          >
+            ⋮
+          </button>
+          
+          {/* Edit dropdown menu */}
+          {showEditMenu && (
+            <div className="avatar-edit-dropdown" ref={menuRef}>
+              <button
+                type="button"
+                className="edit-option"
+                onClick={handleEditProfile}
+              >
+                <span className="edit-option-icon">👤</span>
+                Edit Profile
+              </button>
+              <button
+                type="button"
+                className="edit-option logout"
+                onClick={handleLogout}
+              >
+                <span className="edit-option-icon">🚪</span>
+                Logout
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -152,34 +306,50 @@ export default function SideWindow({ activeUserId, onStartChat }: SideWindowProp
             <p className="sub-text">Start a new conversation by searching for users</p>
           </div>
         ) : (
-          filteredConversations.map((conv) => (
-            <div
-              key={conv.user._id}
-              className={`user-item ${activeUserId === conv.user._id ? "active" : ""}`}
-              onClick={() => onStartChat?.(conv.user)}
-            >
-              {/* User Avatar */}
-              <div className="user-avatar">
-                <div className="avatar-circle">
-                  {(conv.user.name || conv.user.username).charAt(0).toUpperCase()}
+          filteredConversations.map((conv) => {
+            const userPic = getUserProfilePic(conv.user);
+            const displayName = getDisplayName(conv.user);
+            
+            return (
+              <div
+                key={conv.user._id}
+                className={`user-item ${activeUserId === conv.user._id ? "active" : ""}`}
+                onClick={() => onStartChat?.(conv.user)}
+              >
+                {/* User Avatar with Photo */}
+                <div className="user-avatar">
+                  <div className="avatar-circle">
+                    {userPic ? (
+                      <img 
+                        src={userPic} 
+                        alt={`${conv.user.name || conv.user.username}'s profile`} 
+                        className="avatar-image"
+                        onError={() => setFailedAvatarIds((prev) => new Set(prev).add(conv.user._id))}
+                      />
+                    ) : (
+                      displayName
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* User Info */}
-              <div className="user-info">
-                <div className="user-name-row">
-                  <h4 className="user-name">{conv.user.name || conv.user.username}</h4>
-                  <span className="message-time">{formatTime(conv.time || conv.lastMessageAt || conv.lastMessageTime || new Date().toISOString())}</span>
-                </div>
-                <div className="user-username">
-                  @{conv.user.username}
-                </div>
-                <div className="last-message-row">
-                  <p className="last-message">{conv.lastMessage}</p>
+                {/* User Info */}
+                <div className="user-info">
+                  <div className="user-name-row">
+                    <h4 className="user-name">{conv.user.name || conv.user.username}</h4>
+                    <span className="message-time">
+                      {formatTime(conv.time || conv.lastMessageAt || conv.lastMessageTime || new Date().toISOString())}
+                    </span>
+                  </div>
+                  <div className="user-username">
+                    @{conv.user.username}
+                  </div>
+                  <div className="last-message-row">
+                    <p className="last-message">{conv.lastMessage}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

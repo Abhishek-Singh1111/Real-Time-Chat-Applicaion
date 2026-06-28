@@ -403,3 +403,240 @@ html, body {
     display: inline-flex;
   }
 }
+/* ===== AVATAR WITH EDIT OPTION ===== */
+
+/* Avatar Container - for positioning edit button */
+.avatar-container {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: 0.2px;
+  color: #ffffff;
+  background: radial-gradient(120% 120% at 10% 10%, #34d399 0%, #22c55e 35%, #06b6d4 100%);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+  flex: 0 0 auto;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.avatar:hover {
+  transform: scale(1.05);
+}
+
+/* Edit button on avatar - small pencil icon at bottom right */
+.avatar-edit-btn {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #25D366;
+  border: 2px solid #ffffff;
+  color: white;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  font-size: 10px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  z-index: 2;
+}
+
+.avatar-edit-btn:hover {
+  transform: scale(1.15);
+  background: #20b859;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+}
+
+.avatar-edit-btn:active {
+  transform: scale(0.95);
+}
+
+.edit-pencil {
+  line-height: 1;
+  font-size: 10px;
+}
+
+/* Dropdown menu for edit profile */
+.avatar-edit-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border-radius: 12px;
+  padding: 8px 0;
+  min-width: 180px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  z-index: 1000;
+  animation: slideDown 0.2s ease;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Arrow pointer on dropdown */
+.avatar-edit-menu::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-left: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.avatar-edit-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  font-size: 14px;
+  color: #1a1a1a;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+
+.avatar-edit-option:hover {
+  background: #f5f5f5;
+}
+
+.avatar-edit-option:first-child {
+  border-radius: 12px 12px 0 0;
+}
+
+.avatar-edit-option:last-child {
+  border-radius: 0 0 12px 12px;
+}
+
+.menu-icon {
+  font-size: 16px;
+}
+
+/* Animation */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* ===== EDIT USER BUTTON (Right side) ===== */
+
+.edit-user-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+
+.edit-user-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.edit-user-btn:active {
+  transform: translateY(0);
+}
+
+.edit-icon {
+  font-size: 14px;
+}
+
+.edit-text {
+  font-size: 13px;
+}
+
+/* ===== RESPONSIVE ===== */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .edit-text {
+    display: none;
+  }
+  
+  .edit-user-btn {
+    padding: 8px 12px;
+    border-radius: 999px;
+    min-width: 36px;
+    min-height: 36px;
+    justify-content: center;
+  }
+  
+  .edit-icon {
+    font-size: 16px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .avatar-edit-btn {
+    width: 18px;
+    height: 18px;
+    font-size: 9px;
+    bottom: -3px;
+    right: -3px;
+  }
+  
+  .avatar-edit-menu {
+    min-width: 160px;
+    right: 0;
+    left: auto;
+    transform: none;
+  }
+  
+  .avatar-edit-menu::before {
+    left: auto;
+    right: 20px;
+    transform: translateX(0) rotate(45deg);
+  }
+  
+  .edit-user-btn {
+    padding: 6px 10px;
+    min-width: 32px;
+    min-height: 32px;
+  }
+  
+  .edit-icon {
+    font-size: 14px;
+  }
+}
+
+/* Mobile - hide right edit button on very small screens to avoid clutter */
+@media (max-width: 480px) {
+  .edit-user-btn {
+    display: none;
+  }
+}

@@ -117,8 +117,8 @@ exports.getChatHistory = async (req, res, next) => {
             ]
         })
         .sort({ createdAt: 1 }) // Sort by oldest first
-        .populate("sender", "username email profilePicture") // ✅ Fixed: use "username" instead of "name"
-        .populate("receiver", "username email profilePicture"); // ✅ Fixed: use "username" instead of "name"
+        .populate("sender", "username email profile_img profilePicture") 
+        .populate("receiver", "username email profile_img profilePicture"); 
 
         res.status(200).json({
             success: true,
@@ -140,8 +140,8 @@ exports.getUserChats = async (req, res, next) => {
             $or: [{ sender: userId }, { receiver: userId }],
         })
         .sort({ updatedAt: -1 })
-        .populate("sender", "username email profilePicture") // ✅ Fixed: use "username"
-        .populate("receiver", "username email profilePicture"); // ✅ Fixed: use "username"
+        .populate("sender", "username email profile_img profilePicture") 
+        .populate("receiver", "username email profile_img profilePicture"); 
 
         const conversationsByUser = new Map();
 
@@ -185,8 +185,8 @@ exports.getConversations = async (req, res, next) => {
                 { receiver: userId }
             ]
         })
-        .populate("sender", "username email profilePicture") // ✅ Fixed: use "username"
-        .populate("receiver", "username email profilePicture") // ✅ Fixed: use "username"
+        .populate("sender", "username email profile_img profilePicture") // ✅ Fixed: use "username"
+        .populate("receiver", "username email profile_img profilePicture") // ✅ Fixed: use "username"
         .sort({ createdAt: -1 });
 
         const conversationsMap = new Map();

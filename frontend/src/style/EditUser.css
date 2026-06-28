@@ -1,0 +1,241 @@
+.edit-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f0f2f5;
+  padding: 20px;
+  /* ✅ Prevent image from overflowing */
+  overflow: hidden;
+}
+
+.edit-card {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  /* ✅ Keep card contained */
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.edit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+.back-btn:hover {
+  background: #f0f0f0;
+  border-radius: 50%;
+}
+
+.error-message {
+  background: #fee;
+  color: #c00;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.success-message {
+  background: #efe;
+  color: #090;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+/* ✅ FIX: Profile picture container */
+.profile-pic-wrapper {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  margin: 20px auto;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  border: 3px solid #ddd;
+  /* ✅ Prevent image from overflowing */
+  flex-shrink: 0;
+}
+
+/* ✅ FIX: Image should fit inside container */
+.profile-pic-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #4a90e2, #357abd);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60px;
+  font-weight: bold;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 14px;
+}
+
+.overlay span:first-child {
+  font-size: 30px;
+}
+
+.profile-pic-wrapper:hover .overlay {
+  opacity: 1;
+}
+
+.pic-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 15px 0;
+  flex-wrap: wrap;
+}
+
+.pic-actions button {
+  padding: 8px 20px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.pic-actions button:hover {
+  background: #f5f5f5;
+  border-color: #bbb;
+}
+
+.form-group {
+  margin: 15px 0;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #555;
+  font-size: 14px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  background: #f9f9f9;
+  cursor: not-allowed;
+  font-size: 16px;
+  color: #666;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #4a90e2;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.form-actions button {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: all 0.3s;
+}
+
+.form-actions button:first-child {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.form-actions button:first-child:hover:not(:disabled) {
+  background: #e0e0e0;
+}
+
+.form-actions button:last-child {
+  background: #4a90e2;
+  color: white;
+}
+
+.form-actions button:last-child:hover:not(:disabled) {
+  background: #357abd;
+}
+
+.form-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ✅ Mobile Responsive */
+@media (max-width: 600px) {
+  .edit-container {
+    padding: 10px;
+  }
+  
+  .edit-card {
+    padding: 20px;
+    max-width: 100%;
+  }
+  
+  .profile-pic-wrapper {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .placeholder {
+    font-size: 48px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .form-actions button {
+    width: 100%;
+  }
+}

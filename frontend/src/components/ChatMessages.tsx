@@ -23,6 +23,8 @@ export default function ChatMessages({ messages, isChatActive }: ChatMessagesPro
       ) : (
         messages.map((msg) => (
           <div key={msg.id} className={`message ${msg.sender === "me" ? "sent" : "received"}`}>
+            <div>
+            </div>
             <div className="message-bubble">
               {msg.image_url && msg.image_url !== "uploading..." && (
                 <img 

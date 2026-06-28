@@ -6,20 +6,13 @@ import ChatHeader from "./ChatHeader";
 import ChatMessages from "./ChatMessages";
 import ChatInput from "./ChatInput";
 import { useChat } from "../hooks/useChat";
-import { initSocketClient } from "../config/socket";
+// import { initSocketClient } from "../config/socket";
 import type { UserSummary } from "../types/user";
-
 export default function ChatSection() {
   const [activeChatUser, setActiveChatUser] = useState<UserSummary | null>(null);
   const { messagesByUserId, fetchChatHistory, addMessage, updateMessage, removeMessage } = useChat();
 
-  useEffect(() => {
-    try {
-      initSocketClient();
-    } catch (error) {
-      console.error("Socket init failed:", error);
-    }
-  }, []);
+
 
   const isMobile = () =>
     typeof window !== "undefined" &&

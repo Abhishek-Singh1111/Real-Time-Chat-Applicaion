@@ -4,6 +4,7 @@ import ChatSection from './components/ChatSection';
 import Nav from './components/Nav';
 import Signup from './signup';
 import Login from './login';
+import EditUser from './components/EditUser';
 import { FaUserSlash } from "react-icons/fa";
 function AppLayout() {
   return (
@@ -43,6 +44,7 @@ function App() {
           <Route index element={<ChatPage />} />
           <Route path="signup" element={<Signup />} />
           <Route path="login" element={<Login />} />
+          <Route path="/edit-profile" element={<EditUser />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

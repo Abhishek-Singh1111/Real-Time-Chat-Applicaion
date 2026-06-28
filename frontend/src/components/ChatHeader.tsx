@@ -1,4 +1,5 @@
 import type { UserSummary } from "../types/user";
+import { useUser } from "../hooks/userUser"; // ✅ Fixed: useUser instead of userUser
 
 interface ChatHeaderProps {
   activeChatUser: UserSummary | null;
@@ -6,6 +7,23 @@ interface ChatHeaderProps {
 }
 
 export default function ChatHeader({ activeChatUser, onBack }: ChatHeaderProps) {
+  const { user, loading } = useUser();
+  const profilePic = user?.profile_img || null;
+  const userName = user?.name || "User";
+
+  // For the active chat user's profile pic
+  const getActiveUserPic = () => {
+    if (!activeChatUser) return null;
+    return (
+      activeChatUser.profile_img ||
+      activeChatUser.profilePic ||
+      activeChatUser.profilePicture ||
+      null
+    );
+  };
+
+  const activeUserPic = getActiveUserPic();
+
   return (
     <div className="chat-header">
       <div className="chat-header-info">
@@ -17,11 +35,21 @@ export default function ChatHeader({ activeChatUser, onBack }: ChatHeaderProps) 
         >
           ←
         </button>
+        
         <div className="avatar" aria-hidden="true">
-          {activeChatUser 
-            ? (activeChatUser.name || activeChatUser.username).charAt(0).toUpperCase() 
-            : "U"}
+          {activeUserPic ? (
+            <img 
+              src={activeUserPic} 
+              alt={activeChatUser?.name || "User"} 
+              className="avatar-image"
+            />
+          ) : (
+            activeChatUser 
+              ? (activeChatUser.name || activeChatUser.username).charAt(0).toUpperCase() 
+              : "U"
+          )}
         </div>
+        
         <div className="contact-info">
           <h3>
             {activeChatUser 

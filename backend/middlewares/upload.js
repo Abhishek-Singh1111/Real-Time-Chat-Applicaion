@@ -1,6 +1,4 @@
 const multer = require('multer');
-const path = require('path');
-
 // Allowed file types
 const ALLOWED_MIME_TYPES = [
     'image/jpeg',
@@ -8,10 +6,17 @@ const ALLOWED_MIME_TYPES = [
     'image/gif',
     'image/webp',
     'image/svg+xml',
-    'image/bmp'
+    'image/bmp',
+     // Videos
+    'video/mp4',
+    'video/webm',
+    'video/ogg',
+    'video/quicktime',   // .mov
+    'video/x-msvideo',   // .avi
+    'video/x-matroska' 
 ];
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
     // Check file type

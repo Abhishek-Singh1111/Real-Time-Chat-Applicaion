@@ -1,4 +1,6 @@
 const User = require("../model/userSchema");
+const { handleUpload } = require("../utils/cloudinary");
+
 // Search user by username or email
 exports.searchUser = async (req, res, next) => {
     try {
@@ -140,5 +142,71 @@ exports.advancedSearch = async (req, res, next) => {
             message: "Error performing search",
             error: error.message
         });
+    }
+};
+exports.searchById = async (req, res, next) => {
+    try {
+        const userId = req.user.userId;
+        
+        const user = await User.findById(userId).select("-password");
+        
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        // Just send the user as-is - frontend will use profile_img
+        return res.status(200).json({
+            success: true,
+            message: "User found",
+            user: user  // Frontend will read profile_img directly
+        });
+        
+    } catch (error) {
+        console.error("Error in searchById:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
+    }
+};
+
+exports.updateProfile = async (req, res, next) => {
+    try {
+        const user = req.user.userId;
+
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: "No file uploaded"
+            });
+        }
+
+        const b64 = Buffer.from(req.file.buffer).toString("base64");
+        const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+
+        const cldRes = await handleUpload(dataURI);
+
+        const imageUrl = cldRes.secure_url || cldRes.url;
+
+        const updatedUser = await User.findByIdAndUpdate(
+            user,
+            {
+                profile_img: imageUrl
+            },
+            {
+                new: true
+            }
+        );
+        return res.status(200).json({
+            success: true,
+            message: "Profile image uploaded successfully",
+            user: updatedUser
+        });
+
+    } catch (error) {
+        next(error);
     }
 };

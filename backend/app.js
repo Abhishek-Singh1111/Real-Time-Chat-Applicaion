@@ -48,7 +48,7 @@ socketConfig(server);
 const normalizeOrigin = (value) => String(value || "").trim().replace(/\/+$/, "");
 
 // ONLY accept origins from your environment variables. No fallbacks, no wildcards.
-const corsOriginEnv = String(process.env.CORS_ORIGIN || process.env.FRONTEND_URL || "");
+const corsOriginEnv = String(process.env.CORS_ORIGIN || process.env.FRONTEND_URL || "http://localhost:5173");
 const allowedOrigins = [
     ...new Set(
         corsOriginEnv

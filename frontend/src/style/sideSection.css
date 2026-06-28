@@ -33,7 +33,7 @@
   gap: 12px;
 }
 
-.sideWindow .profile-avatar {
+..sideWindow .profile-avatar {
   width: 40px;
   height: 40px;
   background: linear-gradient(135deg, #075e54 0%, #128c7e 100%);
@@ -45,6 +45,17 @@
   font-weight: 600;
   font-size: 18px;
   cursor: pointer;
+  overflow: hidden;
+}
+
+.sideWindow .profile-avatar img,
+.sideWindow .avatar-circle img,
+.sideWindow .avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: inherit;
 }
 
 .sideWindow .profile-info h3 {
@@ -333,5 +344,228 @@
 
   .sideWindow .search-bar {
     padding: 10px 12px;
+  }
+}
+
+
+/* Profile Avatar Container - for positioning edit button */
+.profile-avatar-container {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.profile-avatar,
+.avatar-circle {
+  overflow: hidden;
+}
+
+.profile-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 20px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  flex: 0 0 auto;
+  cursor: default;
+  transition: transform 0.2s ease;
+  position: relative;
+}
+
+.profile-avatar img,
+.avatar-circle img,
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: inherit;
+}
+
+/* Edit button on avatar - small pencil icon at bottom right */
+.avatar-edit-btn {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #25D366;
+  border: 2px solid #ffffff;
+  color: white;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  font-size: 11px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  z-index: 10;
+}
+
+.avatar-edit-btn:hover {
+  transform: scale(1.15);
+  background: #20b859;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+}
+
+.avatar-edit-btn:active {
+  transform: scale(0.95);
+}
+
+/* Dropdown menu for edit profile */
+.avatar-edit-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  background: white;
+  border-radius: 12px;
+  padding: 8px 0;
+  min-width: 200px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  z-index: 1000;
+  animation: slideDown 0.2s ease;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Arrow pointer on dropdown */
+.avatar-edit-dropdown::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 20px;
+  transform: rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-left: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.edit-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  font-size: 14px;
+  color: #1a1a1a;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+
+.edit-option:hover {
+  background: #f5f5f5;
+}
+
+.edit-option:first-child {
+  border-radius: 12px 12px 0 0;
+}
+
+.edit-option:last-child {
+  border-radius: 0 0 12px 12px;
+}
+
+.edit-option.logout {
+  color: #e74c3c;
+  border-top: 1px solid #eee;
+  margin-top: 4px;
+  padding-top: 12px;
+}
+
+.edit-option.logout:hover {
+  background: #fde8e8;
+}
+
+.edit-option-icon {
+  font-size: 16px;
+  width: 24px;
+}
+
+/* Animation */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Make sure parent containers don't clip the dropdown */
+.sidebar-header {
+  overflow: visible !important;
+}
+
+.profile-section {
+  overflow: visible !important;
+  position: relative;
+}
+
+/* Profile section layout */
+.profile-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.profile-info h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.profile-info p {
+  margin: 0;
+  font-size: 12px;
+  color: #25D366;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .avatar-edit-btn {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+    bottom: -2px;
+    right: -2px;
+  }
+  
+  .profile-avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+  
+  .avatar-edit-dropdown {
+    min-width: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  .avatar-edit-btn {
+    width: 18px;
+    height: 18px;
+    font-size: 9px;
+  }
+  
+  .profile-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
   }
 }
