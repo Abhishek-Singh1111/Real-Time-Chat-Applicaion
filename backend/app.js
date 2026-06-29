@@ -1,13 +1,18 @@
 const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
+
 const express = require("express");
-const http = require("http");
 const cors = require("cors");
-const socketConfig = require("./config/socket");
+const http = require("http");
+const { Server } = require("socket.io");
+
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
+
+// Socket store (singleton module - same object everywhere)
+const socketStore = require("./config/socketStore");
 
 // Render/Node expects PORT to be a number
 const parsePortValue = (value) => {
@@ -22,9 +27,7 @@ const parsePortValue = (value) => {
             const parsedUrlPort = Number.parseInt(url.port, 10);
             if (Number.isFinite(parsedUrlPort)) return parsedUrlPort;
         }
-    } catch (_err) {
-        // Not a URL, ignore
-    }
+    } catch (_err) {}
 
     return undefined;
 };
@@ -33,22 +36,25 @@ const isProduction = process.env.NODE_ENV === "production";
 const PORT = parsePortValue(process.env.PORT);
 
 if (isProduction && PORT == null) {
-    console.error("Production requires a valid numeric PORT environment variable from the cloud provider.");
+    console.error("Production requires a valid numeric PORT.");
     process.exit(1);
 }
 
 const listenPort = PORT ?? 8000;
+
 const app = express();
 const server = http.createServer(app);
 
-// Initialize Sockets
-socketConfig(server);
+// Normalize Origins
+const normalizeOrigin = (value) =>
+    String(value || "").trim().replace(/\/+$/, "");
 
-// Normalize Origins to prevent trailing slash mismatches
-const normalizeOrigin = (value) => String(value || "").trim().replace(/\/+$/, "");
+const corsOriginEnv = String(
+    process.env.CORS_ORIGIN ||
+    process.env.FRONTEND_URL ||
+    "http://localhost:5173"
+);
 
-// ONLY accept origins from your environment variables. No fallbacks, no wildcards.
-const corsOriginEnv = String(process.env.CORS_ORIGIN || process.env.FRONTEND_URL || "http://localhost:5173");
 const allowedOrigins = [
     ...new Set(
         corsOriginEnv
@@ -59,89 +65,139 @@ const allowedOrigins = [
 ];
 
 const isAllowedOrigin = (requestOrigin) => {
-    // Allow non-browser server-to-server or tools (like Postman) requests if needed
     if (!requestOrigin) return true;
 
-    const normalized = normalizeOrigin(requestOrigin);
-    return allowedOrigins.includes(normalized);
+    return allowedOrigins.includes(normalizeOrigin(requestOrigin));
 };
 
+// Express CORS
 const corsOptions = {
-    origin: (requestOrigin, callback) => {
-        if (isAllowedOrigin(requestOrigin)) {
+    origin: (origin, callback) => {
+        if (isAllowedOrigin(origin)) {
             return callback(null, true);
         }
 
-        const corsError = new Error(`CORS blocked for origin: ${requestOrigin}`);
-        corsError.statusCode = 403;
-        return callback(corsError);
+        return callback(new Error(`CORS blocked: ${origin}`));
     },
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
 };
 
-// CORS Middleware
 app.use(cors(corsOptions));
 
-// Body Parsing Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Socket.IO
+const io = new Server(server, {
+    cors: {
+        origin: allowedOrigins,
+        credentials: true,
+        methods: ["GET", "POST"]
+    }
+});
+
+// Register IO instance in central store (same object used everywhere)
+socketStore.setIO(io);
+
+// Socket Events
+io.on("connection", (socket) => {
+
+    console.log("Socket Connected:", socket.id);
+
+    socket.on("join", (userId) => {
+
+        console.log("JOIN EVENT RECEIVED:", userId);
+
+        socketStore.addOnlineUser(userId, socket.id);
+
+        console.log("Online Users:", socketStore.getOnlineUsers());
+
+        // Broadcast to all clients that this user is online
+        io.emit("user_online", userId);
+
+    });
+
+    socket.on("disconnect", () => {
+
+        const disconnectedUserId = socketStore.removeOnlineUserBySocketId(socket.id);
+
+        console.log("Socket Disconnected:", socket.id);
+
+        // Broadcast to all clients that this user is offline
+        if (disconnectedUserId) {
+            io.emit("user_offline", disconnectedUserId);
+        }
+
+    });
+
+});
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chats", chatRoutes);
 
-// Global JSON error handler
+// Error Handler
 app.use((err, req, res, next) => {
-    console.error("Error Caught in Middleware:", err.message);
+
+    console.error(err);
 
     if (res.headersSent) return next(err);
 
-    let statusCode = err.statusCode || err.status || 500;
-    let message = err.message || "Server error";
+    let statusCode = err.statusCode || 500;
+    let message = err.message || "Server Error";
 
     if (err.name === "CastError") {
         statusCode = 400;
-        message = "Invalid id";
-    } else if (err.name === "ValidationError") {
+        message = "Invalid ID";
+    }
+
+    if (err.name === "ValidationError") {
         statusCode = 400;
-        message = "Validation error";
-    } else if (err.code === "LIMIT_FILE_SIZE") {
+        message = "Validation Error";
+    }
+
+    if (err.code === "LIMIT_FILE_SIZE") {
         statusCode = 400;
-        message = "File too large";
+        message = "File Too Large";
     }
 
     res.status(statusCode).json({
         success: false,
         message
     });
+
 });
 
 const handleServerError = (error) => {
-    if (error.syscall !== "listen") {
-        throw error;
-    }
 
-    const bind = typeof listenPort === "string" ? `Pipe ${listenPort}` : `Port ${listenPort}`;
+    if (error.syscall !== "listen") throw error;
 
     if (error.code === "EADDRINUSE") {
-        console.error(`${bind} is already in use. Please stop the process using it or change the PORT environment variable.`);
+
+        console.error(`Port ${listenPort} is already in use.`);
         process.exit(1);
+
     }
 
-    console.error("Server error:", error);
+    console.error(error);
     process.exit(1);
+
 };
 
 const startServer = async () => {
+
     await connectDB();
-    
+
     server.on("error", handleServerError);
+
     server.listen(listenPort, () => {
-        console.log(`Server is listening on port ${listenPort}`);
+
+        console.log(`Server running on port ${listenPort}`);
+
     });
+
 };
 
 startServer();

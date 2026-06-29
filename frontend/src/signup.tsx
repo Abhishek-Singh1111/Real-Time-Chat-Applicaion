@@ -1,8 +1,11 @@
 import "./style/signup.css";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { apiUrl } from "./config/api";
 
 export default function Signup() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",      // Changed from "username" to "name"
     email: "",
@@ -61,7 +64,7 @@ export default function Signup() {
           console.log("Token saved:", data.data.token);
         }
         setTimeout(() => {
-          window.location.href = "/";
+          navigate("/");
         }, 2000);
 
       } else {

@@ -120,6 +120,36 @@ html, body {
   text-overflow: ellipsis;
 }
 
+/* Online/Offline Status */
+.status-online {
+  color: #4ade80;
+  font-weight: 500;
+}
+
+.status-online::before {
+  content: "● ";
+  font-size: 10px;
+  animation: pulse 2s infinite;
+}
+
+.status-offline {
+  color: rgba(225, 245, 232, 0.6);
+}
+
+.status-offline::before {
+  content: "○ ";
+  font-size: 10px;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
 /* Chat Messages Area - Takes remaining space */
 .chat-messages {
   flex: 1;

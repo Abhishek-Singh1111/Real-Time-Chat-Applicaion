@@ -1,4 +1,5 @@
 import type { UserSummary } from "../types/user";
+import { useOnlineUsers } from "../hooks/isUserOnline";
 
 interface ChatHeaderProps {
   activeChatUser: UserSummary | null;
@@ -6,6 +7,7 @@ interface ChatHeaderProps {
 }
 
 export default function ChatHeader({ activeChatUser, onBack }: ChatHeaderProps) {
+  const { isUserOnline } = useOnlineUsers();
 
   // For the active chat user's profile pic
   const getActiveUserPic = () => {
@@ -19,6 +21,8 @@ export default function ChatHeader({ activeChatUser, onBack }: ChatHeaderProps) 
   };
 
   const activeUserPic = getActiveUserPic();
+
+  const online = activeChatUser ? isUserOnline(activeChatUser._id) : false;
 
   return (
     <div className="chat-header">
@@ -52,9 +56,9 @@ export default function ChatHeader({ activeChatUser, onBack }: ChatHeaderProps) 
               ? (activeChatUser.name || activeChatUser.username) 
               : "Select a chat"}
           </h3>
-          <span>
+          <span className={online ? "status-online" : "status-offline"}>
             {activeChatUser 
-              ? `@${activeChatUser.username}` 
+              ? (online ? "Online" : "Offline") 
               : "Search a user and click Message"}
           </span>
         </div>

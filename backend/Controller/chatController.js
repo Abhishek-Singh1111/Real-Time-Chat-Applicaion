@@ -1,11 +1,13 @@
 const Chat = require("../model/chatSchema");
 const User = require("../model/userSchema");
 const mongoose = require("mongoose");
-const { handleUpload } = require('../utils/cloudinary'); // ✅ Keep this - it's being used
+const { handleUpload } = require('../utils/cloudinary');
+const socketStore = require("../config/socketStore");
 
 // Allowed file types and size limits
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
 
 exports.sendMessage = async (req, res, next) => {
     console.log("sendMessage called");
@@ -55,16 +57,19 @@ exports.sendMessage = async (req, res, next) => {
             });
         }
 
-        // File upload logic - only process if file exists
+        // Upload image if exists
         let image_url = null;
+
         if (req.file) {
             const b64 = Buffer.from(req.file.buffer).toString("base64");
-            let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+            const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+
             const cldRes = await handleUpload(dataURI);
+
             image_url = cldRes.secure_url || cldRes.url;
         }
 
-        // Create chat
+        // Save chat
         const newChat = await Chat.create({
             sender,
             receiver,
@@ -72,21 +77,46 @@ exports.sendMessage = async (req, res, next) => {
             image_url
         });
 
-        // Add chat reference to sender
-        await User.findByIdAndUpdate(
-            sender,
-            { $push: { chats: newChat._id } }
-        );
+        // Save chat id in users
+        await User.findByIdAndUpdate(sender, {
+            $push: { chats: newChat._id }
+        });
 
-        // Add chat reference to receiver
-        await User.findByIdAndUpdate(
-            receiver,
-            { $push: { chats: newChat._id } }
-        );
+        await User.findByIdAndUpdate(receiver, {
+            $push: { chats: newChat._id }
+        });
+
+        // Populate sender & receiver
+        const populatedChat = await Chat.findById(newChat._id)
+            .populate("sender", "username profile_img")
+            .populate("receiver", "username profile_img");
+
+        // Socket - use central store (same object as socket handlers)
+        const io = socketStore.getIO();
+        const onlineUsers = socketStore.getOnlineUsers();
+
+        console.log("=================================");
+        console.log("Sender:", sender);
+        console.log("Receiver:", receiver);
+        console.log("Online Users:", onlineUsers);
+
+        const receiverSocketId = onlineUsers[receiver];
+
+        console.log("Receiver Socket ID:", receiverSocketId);
+
+        if (receiverSocketId) {
+            console.log("Sending receive_message event...");
+            io.to(receiverSocketId).emit("receive_message", populatedChat);
+            console.log("receive_message emitted successfully");
+        } else {
+            console.log("Receiver is OFFLINE");
+        }
+
+        console.log("=================================");
 
         res.status(201).json({
             success: true,
-            chat: newChat
+            chat: populatedChat
         });
 
     } catch (error) {
@@ -94,7 +124,6 @@ exports.sendMessage = async (req, res, next) => {
         next(error);
     }
 };
-
 // Get chat history between two users
 exports.getChatHistory = async (req, res, next) => {
     try {
@@ -119,7 +148,11 @@ exports.getChatHistory = async (req, res, next) => {
         .sort({ createdAt: 1 }) // Sort by oldest first
         .populate("sender", "username email profile_img profilePicture") 
         .populate("receiver", "username email profile_img profilePicture"); 
+     
+    const onlineUsers = socketStore.getOnlineUsers();
+    const receiverSocketId = onlineUsers[receiverId];
 
+    console.log("Receiver Socket:", receiverSocketId);
         res.status(200).json({
             success: true,
             chats: chats

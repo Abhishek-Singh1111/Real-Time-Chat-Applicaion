@@ -1,21 +1,19 @@
-import './App.css'
+import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
-import ChatSection from './components/ChatSection';
-import Nav from './components/Nav';
-import Signup from './signup';
-import Login from './login';
-import EditUser from './components/EditUser';
+import ChatSection from "./components/ChatSection";
+import Nav from "./components/Nav";
+import Signup from "./signup";
+import Login from "./login";
+import EditUser from "./components/EditUser";
 import { FaUserSlash } from "react-icons/fa";
+import { SocketProvider } from "./context/SocketContext";
+
 function AppLayout() {
-  return (
-    <>
-      <Outlet />
-    </>
-  );
+  return <Outlet />;
 }
 
 function ChatPage() {
-  const isLoggedIn = !!localStorage.getItem('token');
+  const isLoggedIn = !!localStorage.getItem("token");
 
   return (
     <>
@@ -39,18 +37,20 @@ function ChatPage() {
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route element={<AppLayout />}>
-          <Route index element={<ChatPage />} />
-          <Route path="signup" element={<Signup />} />
-          <Route path="login" element={<Login />} />
-          <Route path="/edit-profile" element={<EditUser />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <SocketProvider>
+        <Routes>
+          <Route element={<AppLayout />}>
+            <Route index element={<ChatPage />} />
+            <Route path="signup" element={<Signup />} />
+            <Route path="login" element={<Login />} />
+            <Route path="/edit-profile" element={<EditUser />} />
+          </Route>
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </SocketProvider>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
-
+export default App;
