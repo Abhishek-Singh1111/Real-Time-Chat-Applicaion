@@ -13,7 +13,7 @@ export default function Search({ onStartChat }: SearchProps) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
   const [searchType, setSearchType] = useState<"username" | "email" | "both">("both");
-
+ const token = localStorage.getItem("token")
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -38,7 +38,13 @@ export default function Search({ onStartChat }: SearchProps) {
         );
       }
       
-      const response = await fetch(url);
+      const response = await fetch(url,{
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+      });
       const data = await response.json();
       
       if (response.ok) {
